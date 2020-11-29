@@ -17,8 +17,8 @@ def train(train_config):
     # Initial
     output_directory     = train_config.get('output_directory', '')
     max_iter             = train_config.get('max_iter', 100000)
-    batch_size           = train_config.get('batch_size', 16)
-    crop_length          = train_config.get('crop_length', 128)
+    batch_size           = train_config.get('batch_size', 128)
+    nframes              = train_config.get('nframes', 40)
     iters_per_checkpoint = train_config.get('iters_per_checkpoint', 10000)
     iters_per_log        = train_config.get('iters_per_log', 1000)
     seed                 = train_config.get('seed', 1234)
@@ -31,9 +31,9 @@ def train(train_config):
     torch.cuda.manual_seed(seed)   
 
     # Initial trainer
-    module = import_module('tsvad.trainer.{}'.format(trainer_type), package=None)
+    module = import_module('trainer.{}'.format(trainer_type), package=None)
     TRAINER = getattr( module, 'Trainer')
-    trainer = TRAINER( train_config, model_config, data_config)
+    trainer = TRAINER( train_config, model_config)
     try:
         collate_fn = getattr( module, 'collate')
     except:
@@ -46,7 +46,7 @@ def train(train_config):
         iteration += 1  # next iteration is iteration + 1
 
     # Load training data
-    trainset = Dataset(train_config['training_dir'])    
+    trainset = Dataset(train_config['training_dir'], nframes)    
     train_loader = DataLoader(trainset, num_workers=32, shuffle=True,
                               batch_size=batch_size,
                               pin_memory=True,
@@ -73,6 +73,7 @@ def train(train_config):
     logger.info("Output directory: {}".format(output_directory))
     logger.info("Training utterances: {}".format(len(trainset)))
     logger.info("Batch size: {}".format(batch_size))
+    logger.info("# of frames per sample: {}".format(nframes))
 
     # ================ MAIN TRAINNIG LOOP! ===================
     
@@ -116,12 +117,12 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config', type=str, default='tsvad_config.json',
                         help='JSON file for configuration')
+    parser.add_argument('-o', '--output_directory', type=str, default=None,
+                        help='Directory for checkpoint output')
     parser.add_argument('-p', '--checkpoint_path', type=str, default=None,
                         help='checkpoint path to keep training')
     parser.add_argument('-T', '--training_dir', type=str, default=None,
                         help='Traininig dictionary path')
-    parser.add_argument('-K', '--feature_kind', type=str, default=None,
-                        help='Feature kind')    
 
     parser.add_argument('-g', '--gpu', type=str, default='0',
                         help='Using gpu #')
@@ -135,6 +136,8 @@ if __name__ == "__main__":
     global model_config
     model_config = config["model_config"]
 
+    if args.output_directory is not None:
+        train_config['output_directory'] = args.output_directory
     if args.checkpoint_path is not None:
         train_config['checkpoint_path'] = args.checkpoint_path
 

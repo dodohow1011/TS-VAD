@@ -13,37 +13,32 @@ class Dataset(torch.utils.data.Dataset):
     This is the main class that calculates the spectrogram and returns the
     spectrogram, audio pair.
     """
-    def __init__(self, training_dir='./data', crop_length=40):
+    def __init__(self, training_dir='./data', nframes=40):
         
         self.utt2feat   = files_to_dict(os.path.join(training_dir,'train/feats.scp'))
         self.utt2nframe = files_to_dict(os.path.join(training_dir,'train/utt2num_frames'))       
         self.utt2target = files_to_dict(os.path.join(training_dir,'dense_targets.scp'))
         self.utt2iv     = files_to_dict(os.path.join(training_dir,'ivector_online.scp'))
-        self.utt_list   = [k for k in self.utt2target.keys()]
+        self.utt_list   = [k for k in self.utt2target.keys() if int(self.utt2nframe[k]) >= nframes ]
         
-        self.crop_length = crop_length
+        self.nframes = nframes
 
     def __getitem__(self, index):
         utt         = self.utt_list[index]
         feat_length = int(self.utt2nframe[utt])
 
+        assert feat_length >= self.nframes
+
         feat        = load_scp_to_torch(self.utt2feat[utt]).unsqueeze(0)
         target      = load_scp_to_torch(self.utt2target[utt])[:, 0::2]
-        ivectors    = load_scp_to_torch(self.utt2iv[utt])[0]
+        ivectors    = load_scp_to_torch(self.utt2iv[utt]).mean(dim=0)
         
-        if feat_length < self.crop_length:
-            feat   = F.pad(feat, (0, 0, 0, self.crop_length-feat_length))
-            target = F.pad(target, (0, 0, 0, self.crop_length-feat_length))
-            mask   = F.pad(torch.ones(feat_length), (0, self.crop_length-feat_length))
-        
-        else:
-            max_start  = feat_length - self.crop_length
-            feat_start = random.randint(0, max_start)
-            feat       = feat[:, feat_start:(feat_start+self.crop_length)]
-            target     = target[feat_start:(feat_start+self.crop_length)]
-            mask       = torch.ones(self.crop_length)
+        max_start  = feat_length - self.nframes
+        feat_start = random.randint(0, max_start)
+        feat       = feat[:, feat_start:(feat_start+self.nframes)]
+        target     = target[feat_start:(feat_start+self.nframes)]
 
-        return feat, target, ivectors, mask
+        return feat, target, ivectors
     
     def __len__(self):
         return len(self.utt_list)

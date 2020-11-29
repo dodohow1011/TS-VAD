@@ -15,10 +15,8 @@
                 "last_epoch": -1
             }
         },
-        "batch_size": 12,
-        "batch_size_mix": 3,
-        "crop_length": 12000,
-        "crop_length_mix": 24000,
+        "batch_size": 128,
+        "nframes": 40,
         "iters_per_checkpoint": 10000,
         "iters_per_log": 1,
         "seed": 1234,

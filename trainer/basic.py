@@ -1,6 +1,7 @@
 import torch
 
 from .radam import RAdam 
+from importlib import import_module
 
 
 class Trainer(object):
@@ -18,9 +19,9 @@ class Trainer(object):
                                 }
                             })        
 
-        module = import_module('..model.{}'.format(model_type), package=None)
+        module = import_module('model.{}'.format(model_type), package=None)
         MODEL = getattr(module, 'Model')
-        model = MODEL(model_config).cuda()
+        model = MODEL().cuda()
 
         print(model)
 
