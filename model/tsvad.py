@@ -98,9 +98,7 @@ class Model(nn.Module):
 
     def inference(self, batch): 
         _, feats, ivectors = batch
-        feats = feats.cuda()
-        ivectors = ivectors.cuda()
-        
+
         feats = self.cnn(feats)
         bs, chan, tframe, dim = feats.size()
         
@@ -110,16 +108,16 @@ class Model(nn.Module):
         ivectors = ivectors.view(bs, 4, 100).unsqueeze(2)        # B x 4 x 1 x 100
         ivectors = ivectors.repeat(1, 1, tframe, 1)              # B x 4 x T x 100
         
-        sd_in  = torch.cat((feats, ivectors), dim=-1)           #  B x 4 x T x 2660
-        sd_in  = self.linear(sd_in).view(4*bs, tframe, -1)      # 4B x T x 384
-        sd_out = self.rnn_speaker_detection(sd_in)              # 4B x T x 1792
-        sd_out = sd_out.contiguous().view(bs, 4, tframe, -1)    #  B x 4 x T x 1792
-        sd_out = sd_out.permute(0, 2, 1, 3)                     #  B x T x 4 x 1792
-        sd_out = sd_out.contiguous().view(bs, tframe, -1)       #  B x T x 7168
+        sd_in  = torch.cat((feats, ivectors), dim=-1)            #  B x 4 x T x 2660
+        sd_in  = self.linear(sd_in).view(4*bs, tframe, -1)       # 4B x T x 384
+        sd_out = self.rnn_speaker_detection(sd_in)               # 4B x T x 320
+        sd_out = sd_out.contiguous().view(bs, 4, tframe, -1)     #  B x 4 x T x 320
+        sd_out = sd_out.permute(0, 2, 1, 3)                      #  B x T x 4 x 320
+        sd_out = sd_out.contiguous().view(bs, tframe, -1)        #  B x T x 1280
 
-        outputs = self.rnn_combine(sd_out)                      #  B x T x 1792
-        outputs = outputs.contiguous().view(bs, tframe, 4, -1)  #  B x T x 4 x 448
-        preds   = self.output_layer(outputs).squeeze(-1)        #  B x T x 4
+        outputs = self.rnn_combine(sd_out)                       #  B x T x 320
+        outputs = outputs.contiguous().view(bs, tframe, 4, -1)   #  B x T x 4 x 80
+        preds   = self.output_layer(outputs).squeeze(-1)         #  B x T x 4
         preds   = nn.Sigmoid()(preds)
         
         return preds

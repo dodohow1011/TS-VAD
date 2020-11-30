@@ -67,7 +67,7 @@ class Trainer(object):
         if self.scheduler is not None:
             self.scheduler.step()
 
-        if iteration is None:
+        if iteration is not None:
             self.iteration = iteration + 1
         else:
             self.iteration += 1

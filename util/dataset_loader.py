@@ -59,10 +59,7 @@ class EvalDataset(torch.utils.data.Dataset):
         utt         = self.utt_list[index]
 
         feat        = load_scp_to_torch(self.utt2feat[utt]).unsqueeze(0)
-        ivectors    = load_scp_to_torch(self.utt2iv[utt])
-        for i in range(ivectors.size(0)):
-            assert torch.equal(ivectors[0], ivectors[i])
-        ivectors = ivectors[0]
+        ivectors    = load_scp_to_torch(self.utt2iv[utt]).mean(dim=0)
         
         return utt, feat, ivectors
     
