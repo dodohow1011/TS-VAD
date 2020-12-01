@@ -13,10 +13,10 @@ class Dataset(torch.utils.data.Dataset):
     This is the main class that calculates the spectrogram and returns the
     spectrogram, audio pair.
     """
-    def __init__(self, training_dir='./data', nframes=40):
+    def __init__(self, training_dir='./data/train', nframes=40):
         
-        self.utt2feat   = files_to_dict(os.path.join(training_dir,'train/feats.scp'))
-        self.utt2nframe = files_to_dict(os.path.join(training_dir,'train/utt2num_frames'))       
+        self.utt2feat   = files_to_dict(os.path.join(training_dir,'feats.scp'))
+        self.utt2nframe = files_to_dict(os.path.join(training_dir,'utt2num_frames'))       
         self.utt2target = files_to_dict(os.path.join(training_dir,'dense_targets.scp'))
         self.utt2iv     = files_to_dict(os.path.join(training_dir,'ivector_online.scp'))
         self.utt_list   = [k for k in self.utt2target.keys() if int(self.utt2nframe[k]) >= nframes ]
@@ -30,7 +30,7 @@ class Dataset(torch.utils.data.Dataset):
         assert feat_length >= self.nframes
 
         feat        = load_scp_to_torch(self.utt2feat[utt]).unsqueeze(0)
-        target      = load_scp_to_torch(self.utt2target[utt])[:, 0::2]
+        target      = load_scp_to_torch(self.utt2target[utt])[:, 1::2]
         ivectors    = load_scp_to_torch(self.utt2iv[utt]).mean(dim=0)
         
         max_start  = feat_length - self.nframes
