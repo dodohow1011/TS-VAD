@@ -1,7 +1,7 @@
 source /home/dodohow1011/miniconda3/bin/activate py36
 
-output_dir=checkpoints/tsvad_nframes128b_128
-gpu=0
+output_dir=checkpoints/tsvad_nframes200_b64
+gpu=1
 
 . ./util/parse_options.sh
 

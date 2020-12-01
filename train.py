@@ -83,7 +83,7 @@ def train(train_config):
     while iteration <= max_iter:
         for i, batch in enumerate(train_loader):
             
-            iteration, loss_detail = trainer.step(batch, iteration=iteration)
+            iteration, loss_detail, lr = trainer.step(batch, iteration=iteration)
 
             # Keep Loss detail
             for key,val in loss_detail.items():
@@ -101,6 +101,7 @@ def train(train_config):
                 mseg = 'Iter {}:'.format( iteration)
                 for key,val in loss_log.items():
                     mseg += '  {}: {:.6f}'.format(key,np.mean(val))
+                mseg += '  lr: {:.6f}'.format(lr)
                 logger.info(mseg)
                 loss_log = dict()
 

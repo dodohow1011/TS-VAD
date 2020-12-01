@@ -3,13 +3,13 @@ source /home/dodohow1011/miniconda3/bin/activate py36
 out=prediction
 dset=dev
 stage=-1
-stop_stage=0
+stop_stage=3
 
 . ./util/parse_options.sh
 
-if [ $stage -le 0 -a $stop_stge -ge 0 ]; then
+if [ $stage -le 0 -a $stop_stage -ge 0 ]; then
   python inference.py -c conf/tsvad_config.json \
-    -p checkpoints/tsvad_nframes128/11-30_17-41_10000 -g 1 \
+    -p checkpoints/tsvad_nframes128b_128/12-01_14-11_10000 -g 3 \
     -o $out -f data/$dset -i data/$dset
 fi
  

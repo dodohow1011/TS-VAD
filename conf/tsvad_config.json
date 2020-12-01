@@ -15,8 +15,8 @@
                 "last_epoch": -1
             }
         },
-        "batch_size": 128,
-        "nframes": 128,
+        "batch_size": 64,
+        "nframes": 200,
         "iters_per_checkpoint": 10000,
         "iters_per_log": 1,
         "seed": 1234,

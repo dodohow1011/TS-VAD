@@ -7,7 +7,7 @@ from importlib import import_module
 class Trainer(object):
     def __init__(self, train_config, model_config):
         learning_rate  = train_config.get('learning_rate', 1e-4)
-        model_type     = train_config.get('model_type', 'vae')
+        model_type     = train_config.get('model_type', 'tsvad')
         self.opt_param = train_config.get('optimize_param', {
                                 'optim_type': 'RAdam',
                                 'learning_rate': 1e-4,
@@ -64,6 +64,9 @@ class Trainer(object):
                 self.model.parameters(),
                 self.opt_param['max_grad_norm'])
         self.optimizer.step()
+        for param_group in self.optimizer.param_groups:
+            learning_rate = param_group['lr']
+
         if self.scheduler is not None:
             self.scheduler.step()
 
@@ -72,7 +75,7 @@ class Trainer(object):
         else:
             self.iteration += 1
 
-        return self.iteration, loss_detail
+        return self.iteration, loss_detail, learning_rate
 
 
     def save_checkpoint(self, checkpoint_path):

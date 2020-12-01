@@ -10,7 +10,7 @@ from kaldiio import WriteHelper
 from importlib import import_module
 
 from torch.utils.data import DataLoader
-from tsvad.util.dataset_loader import EvalDataset
+from util.dataset_loader import EvalDataset
 
 def compute_tsvad_weights(writer, utt, preds):
     for i in range(4):
@@ -27,7 +27,7 @@ def inference(infer_config):
     ivectors_dir = infer_config.get('ivectors_dir', '')
 
     # Load Model
-    module = import_module('tsvad.model.{}'.format(model_type))
+    module = import_module('model.{}'.format(model_type))
     MODEL = getattr(module, 'Model')
     model = MODEL()
     model.load_state_dict(torch.load(model_path)['model'])
