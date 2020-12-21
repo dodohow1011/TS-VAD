@@ -90,5 +90,5 @@ class Trainer(object):
     def load_checkpoint(self, checkpoint_path):
         checkpoint_data = torch.load(checkpoint_path, map_location='cpu')
         self.model.load_state_dict(checkpoint_data['model'])
-        self.optimizer.load_state_dict(checkpoint_data['optimizer'])
+        # self.optimizer.load_state_dict(checkpoint_data['optimizer'])
         return checkpoint_data['iteration']

@@ -9,7 +9,7 @@ stop_stage=3
 
 if [ $stage -le 0 -a $stop_stage -ge 0 ]; then
   python inference.py -c conf/tsvad_config.json \
-    -p checkpoints/tsvad_nframes128b_128/12-01_14-11_10000 -g 3 \
+    -p checkpoints/tsvad_nframes40_b64/12-18_23-14_500000 -g 1 \
     -o $out -f data/$dset -i data/$dset
 fi
  
@@ -18,7 +18,7 @@ fi
 scoring=$out/scoring
 hyp_rttm=$scoring/rttm
 ref_rttm=chime6_rttm/dev_rttm
-thr=0.4
+thr=0.5
 window=51
 min_silence=0.3
 min_speech=0.2

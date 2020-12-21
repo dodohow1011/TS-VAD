@@ -4,19 +4,19 @@
         "output_directory": "checkpoints/tsvad",
         "trainer_type": "basic",
         "model_type": "tsvad",
-        "max_iter": 300000,
+        "max_iter": 1000000,
         "optimize_param": {
             "optim_type": "RAdam",
-            "learning_rate": 1e-3,
+            "learning_rate": 1e-5,
             "max_grad_norm": 10,
             "lr_scheduler":{
-                "step_size": 50000,
+                "step_size": 100000,
                 "gamma": 0.5,
                 "last_epoch": -1
             }
         },
-        "batch_size": 64,
-        "nframes": 200,
+        "batch_size": 128,
+        "nframes": 30,
         "iters_per_checkpoint": 10000,
         "iters_per_log": 1,
         "seed": 1234,
@@ -27,12 +27,9 @@
         "output_dir": "hyp"
     },
     "model_config": {
-        "n_in_channel": 1,
-        "n_spk": 1000,
-        "kernel_size": [ 5, 5, 3, 3],
-        "padding": [ 2, 2, 1, 1],
-        "stride": [ 1, 1, 1, 1],
-        "nb_filters": [ 64, 128, 256, 256],
-        "pooling": [ [1, 2], [1, 2], [1, 4], [1, 5]]
+        "out_channels": [ 64, 64, 128, 128],
+        "rproj": 128,
+        "nproj": 160,
+        "cell": 896
     }
 }

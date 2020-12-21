@@ -58,8 +58,8 @@ class EvalDataset(torch.utils.data.Dataset):
     def __getitem__(self, index):
         utt         = self.utt_list[index]
 
-        feat        = load_scp_to_torch(self.utt2feat[utt]).unsqueeze(0)
-        ivectors    = load_scp_to_torch(self.utt2iv[utt]).mean(dim=0)
+        feat        = load_scp_to_torch(self.utt2feat[utt]).unsqueeze(0).cuda()
+        ivectors    = load_scp_to_torch(self.utt2iv[utt]).mean(dim=0).cuda()
         
         return utt, feat, ivectors
     

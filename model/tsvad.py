@@ -29,7 +29,7 @@ class BLSTMP(nn.Module):
 
         for i in range(num_layers-1):
             self.rnns.append(nn.LSTM(2*nproj, n_hidden, bidirectional=True, dropout=dropout, batch_first=True))
-            self.linears.append(nn.Linears(2*n_hidden, 2*nproj))
+            self.linears.append(nn.Linear(2*n_hidden, 2*nproj))
     
     def forward(self, feature):
         recurrent, _ = self.rnns[0](feature)
@@ -62,7 +62,7 @@ class Model(nn.Module):
                    )
         
         self.linear = nn.Linear(out_channels[-1]*20+100, 3*rproj)
-        self.rnn_speaker_detection = BLSTMP(3*rproj, cell)
+        self.rnn_speaker_detection = BLSTMP(3*rproj, cell, num_layers=2)
         self.rnn_combine = BLSTMP(8*nproj, cell)
 
         self.output_layer = nn.Linear(nproj//2, 1)
