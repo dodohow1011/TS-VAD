@@ -83,24 +83,24 @@ class Model(nn.Module):
         ivectors = ivectors.view(bs, 4, 100).unsqueeze(2)        # B x 4 x 1 x 100
         ivectors = ivectors.repeat(1, 1, tframe, 1)              # B x 4 x T x 100
         
-        sd_in  = torch.cat((feats, ivectors), dim=-1)            #  B x 4 x T x 2660
-        sd_in  = self.linear(sd_in).view(4*bs, tframe, -1)       # 4B x T x 384
-        sd_out = self.rnn_speaker_detection(sd_in)               # 4B x T x 320
+        sd_in  = torch.cat((feats, ivectors), dim=-1)            # B x 4 x T x 2660
+        sd_in  = self.linear(sd_in).view(4*bs, tframe, -1)       # B*4 x T x 384
+        sd_out = self.rnn_speaker_detection(sd_in)               # B*4 x T x 320
         
         sd_out = self.dprnn1(sd_out).view(bs, 4, tframe, -1)     # B x 4 x T x 320
         sd_out = sd_out.permute(0, 2, 1, 3)                      # B x T x 4 x 320
-        sd_out = sd_out.contiguous().view(bs*tframe, 4, -1)      # BT x 4 x 320
+        sd_out = sd_out.contiguous().view(bs*tframe, 4, -1)      # B*T x 4 x 320
         sd_out = self.dprnn2(sd_out).view(bs, tframe, 4, -1)     # B x T x 4 x 320
 
         sd_out = sd_out.permute(0, 2, 1, 3)                      # B x 4 x T x 320 
-        sd_out = sd_out.contiguous().view(4*bs, tframe, -1)      # 4B x T x 320
+        sd_out = sd_out.contiguous().view(4*bs, tframe, -1)      # B*4 x T x 320
         sd_out = self.dprnn3(sd_out).view(bs, 4, tframe, -1)     # B x 4 x T x 320
         sd_out = sd_out.permute(0, 2, 1, 3)                      # B x T x 4 x 320
-        sd_out = sd_out.contiguous().view(bs*tframe, 4, -1)      # BT x 4 x 320
-        sd_out = self.dprnn4(sd_out)                             # BT x 4 x 320
+        sd_out = sd_out.contiguous().view(bs*tframe, 4, -1)      # B*T x 4 x 320
+        sd_out = self.dprnn4(sd_out)                             # B*T x 4 x 320
         
-        outputs = sd_out.contiguous().view(bs, tframe, 4, -1)   #  B x T x 4 x 80
-        preds   = self.output_layer(outputs).squeeze(-1)         #  B x T x 4
+        outputs = sd_out.contiguous().view(bs, tframe, 4, -1)    # B x T x 4 x 320
+        preds   = self.output_layer(outputs).squeeze(-1)         # B x T x 4
         preds   = nn.Sigmoid()(preds)
         
         loss = nn.BCELoss(reduction='sum')(preds, targets) / tframe / bs
@@ -120,15 +120,24 @@ class Model(nn.Module):
         ivectors = ivectors.view(bs, 4, 100).unsqueeze(2)        # B x 4 x 1 x 100
         ivectors = ivectors.repeat(1, 1, tframe, 1)              # B x 4 x T x 100
         
-        sd_in  = torch.cat((feats, ivectors), dim=-1)            #  B x 4 x T x 2660
-        sd_in  = self.linear(sd_in).view(4*bs, tframe, -1)       # 4B x T x 384
-        sd_out = self.rnn_speaker_detection(sd_in)               # 4B x T x 320
+        sd_in  = torch.cat((feats, ivectors), dim=-1)            # B x 4 x T x 2660
+        sd_in  = self.linear(sd_in).view(4*bs, tframe, -1)       # B*4 x T x 384
+        sd_out = self.rnn_speaker_detection(sd_in)               # B*4 x T x 320
         
+        sd_out = self.dprnn1(sd_out).view(bs, 4, tframe, -1)     # B x 4 x T x 320
+        sd_out = sd_out.permute(0, 2, 1, 3)                      # B x T x 4 x 320
+        sd_out = sd_out.contiguous().view(bs*tframe, 4, -1)      # B*T x 4 x 320
+        sd_out = self.dprnn2(sd_out).view(bs, tframe, 4, -1)     # B x T x 4 x 320
 
-
-        outputs = self.rnn_combine(sd_out)                       #  B x T x 320
-        outputs = outputs.contiguous().view(bs, tframe, 4, -1)   #  B x T x 4 x 80
-        preds   = self.output_layer(outputs).squeeze(-1)         #  B x T x 4
+        sd_out = sd_out.permute(0, 2, 1, 3)                      # B x 4 x T x 320 
+        sd_out = sd_out.contiguous().view(4*bs, tframe, -1)      # B*4 x T x 320
+        sd_out = self.dprnn3(sd_out).view(bs, 4, tframe, -1)     # B x 4 x T x 320
+        sd_out = sd_out.permute(0, 2, 1, 3)                      # B x T x 4 x 320
+        sd_out = sd_out.contiguous().view(bs*tframe, 4, -1)      # B*T x 4 x 320
+        sd_out = self.dprnn4(sd_out)                             # B*T x 4 x 320
+        
+        outputs = sd_out.contiguous().view(bs, tframe, 4, -1)    # B x T x 4 x 320
+        preds   = self.output_layer(outputs).squeeze(-1)         # B x T x 4
         preds   = nn.Sigmoid()(preds)
         
         return preds
