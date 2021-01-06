@@ -77,6 +77,24 @@ class VadProbSet:
         for sess, items in data.items():
             self.data[sess] = np.hstack(items)
 
+        common_thresh = dict()
+        for sess, items in self.data.items():
+            s = sess.split('-')[0]
+            if s not in common_thresh.keys():
+                common_thresh[s] = list()
+            common_thresh[s].append(items)
+        
+        self.common_thresh = dict()
+        for s, items in common_thresh.items():
+            thresh = np.max(np.vstack(items), axis=0)
+            self.common_thresh[s] = thresh
+
+    def vectorize(self, prob, common_thresh, threshold=0.4):
+        p = np.zeros(prob.shape)
+        for i in range(prob.shape[0]):
+            p[i] = 1.0 if prob[i] > threshold and common_thresh[i]-prob[i] < 0.3 else 0.0
+        return p
+
     def apply_filter(self, window, threshold, threshold_first):
         for sess in self.data.keys():
             if threshold_first:
@@ -87,6 +105,8 @@ class VadProbSet:
                 if window > 1:
                     self.data[sess] = signal.medfilt(self.data[sess], window)
                 self.data[sess] = np.vectorize(lambda value: 1.0 if value > threshold else 0.0)(self.data[sess]).astype(dtype=np.int32)
+                # s = sess.split('-')[0]
+                # self.data[sess] = self.vectorize(self.data[sess], self.common_thresh[s])
 
     def convert(self, frame_shift,  min_silence, min_speech, out_rttm):
         min_silence = int(round(min_silence / frame_shift))

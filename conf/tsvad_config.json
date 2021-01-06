@@ -3,8 +3,8 @@
         "training_dir": "data/train",
         "output_directory": "checkpoints/tsvad",
         "trainer_type": "basic",
-        "model_type": "tsvad_dprnn_v2",
-        "max_iter": 300000,
+        "model_type": "tsvad_dprnn_v3",
+        "max_iter": 500000,
         "optimize_param": {
             "optim_type": "RAdam",
             "learning_rate": 1e-4,
@@ -15,7 +15,7 @@
                 "last_epoch": -1
             }
         },
-        "batch_size": 64,
+        "batch_size": 32,
         "nframes": 40,
         "iters_per_checkpoint": 10000,
         "iters_per_log": 1,
@@ -23,14 +23,14 @@
         "checkpoint_path": ""
     },
     "infer_config": {
-        "model_type": "tsvad_dprnn",
+        "model_type": "tsvad_dprnn_v3",
         "model_path": "checkpoints_tsvad",
         "output_dir": "hyp"
     },
     "model_config": {
         "out_channels": [ 64, 64, 128, 128],
-        "rproj": 128,
-        "nproj": 160,
-        "cell": 896
+        "nproj": 384,
+        "cell": 896,
+        "dprnn_layers": 6
     }
 }

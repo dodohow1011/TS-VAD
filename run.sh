@@ -1,6 +1,6 @@
 source /home/dodohow1011/miniconda3/bin/activate py36
 
-output_dir=tsvad_dprnn_v2_nframes40_b64
+output_dir=tsvad_dprnn_v3_nframes40_b64
 gpu=2
 
 . ./util/parse_options.sh
