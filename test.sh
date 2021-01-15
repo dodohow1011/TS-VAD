@@ -1,7 +1,7 @@
 source /home/dodohow1011/miniconda3/bin/activate py36
 
 dset=eval
-out=dprnn_v3_${dset}_150000_track1
+out=dprnn_v3_${dset}_460000_track1
 stage=0
 stop_stage=3
 
@@ -11,7 +11,7 @@ if [ $stage -le 0 -a $stop_stage -ge 0 ]; then
   if [ ! -f prediction/$out/.done ]; then
     mkdir prediction/$out
     python inference.py -c conf/tsvad_config.json \
-      -p checkpoints/tsvad_dprnn_v3_nframes40_b64/01-06_12-20_150000 -g 3 \
+      -p checkpoints/tsvad_dprnn_v3_nframes40_b64/01-08_16-34_460000 -g 3 \
       -o prediction/$out -f data/$dset -i data/$dset
 
     touch prediction/$out/.done
